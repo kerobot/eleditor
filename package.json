@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "start": "electron ./src"
+  },
+  "devDependencies": {
+    "electron": "^6.0.11"
+  },
+  "private": true
+}

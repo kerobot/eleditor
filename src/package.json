@@ -1,0 +1,8 @@
+{
+  "name": "electroneditor",
+  "version": "0.0.1",
+  "description": "Electron Editor.",
+  "main": "main.js",
+  "author": "kerobot",
+  "license": "ISC"
+}

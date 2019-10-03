@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8"/>
+  <title>Electron Editor</title>
+  <link rel="stylesheet"
+        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
+  <link href="main.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/ace.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/mode-javascript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/snippets/javascript.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.6/theme-monokai.js"></script>
+  <script src="editor.js"></script>
+</head>
+<body>
+  <div id="header_fixed">
+    <button type="button"
+            class="btn-sm btn-primary"
+            id="btnLoad">
+      読み込む
+    </button>
+    <button type="button"
+            class="btn-sm
+            btn-primary"
+            id="btnSave">
+      保存する
+    </button>
+  </div>
+  <div id="footer_fixed"></div>
+  <div id="input_area">
+    <div id="input_txt"></div>
+  </div>
+</body>
+</html>
