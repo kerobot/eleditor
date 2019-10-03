@@ -396,3 +396,11 @@ function saveNewFile() {
   );
 }
 ```
+
+git add .
+
+git commit -m "first commit."
+
+git remote add origin https://github.com/kerobot/eleditor.git
+
+git push -u origin master
