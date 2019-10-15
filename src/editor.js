@@ -1,13 +1,15 @@
 'use strict';
 
+// アプリケーションのモジュール読み込み
 const {BrowserWindow, dialog} = require('electron').remote;
+const {ipcRenderer} = require('electron');
 const fs = require('fs');
 
 let inputArea = null;
 let inputTxt = null;
 let footerArea = null;
-let currentPath = '';
 let editor = null;
+let currentPath = '';
 
 window.addEventListener('DOMContentLoaded', onLoad);
 
@@ -24,6 +26,7 @@ function onLoad() {
   editor.$blockScrolling = Infinity;
   editor.setTheme('ace/theme/twilight');
   editor.getSession().setMode('ace/mode/javascript');
+
   // ドラッグ&ドロップ関連
   // イベントの伝搬を止めて、アプリケーションのHTMLとファイルが差し替わらないようにする
   document.addEventListener('dragover', (event) => {
@@ -32,6 +35,7 @@ function onLoad() {
   document.addEventListener('drop', (event) => {
     event.preventDefault();
   });
+
   // 入力部分の処理
   inputArea.addEventListener('dragover', (event) => {
     event.preventDefault();
@@ -48,13 +52,33 @@ function onLoad() {
     readFile(file.path);
   });
 
-  // 「読込」ボタン
-  document.querySelector('#btnLoad').addEventListener('click', () => {
-    loadFile();
-  });
-  // 「保存」ボタン
-  document.querySelector('#btnSave').addEventListener('click', () => {
-    saveFile();
+  // 非同期でメインプロセスからのメッセージを受信
+  ipcRenderer.on('main_file_message', (event, arg) => {
+    console.log(arg);
+    if(arg) {
+      switch(arg) {
+        case 'open':
+          // ファイルを開く
+          loadFile();
+          // 結果のメッセージを送信
+          event.sender.send('render_reply_message', 'open : ' + currentPath);
+          break;
+        case 'save':
+          // ファイルを保存
+          saveFile();
+          // 結果のメッセージを送信
+          event.sender.send('render_reply_message', 'save : ' + currentPath);
+          break;
+        case 'saveas':
+          // 名前を付けてファイルを保存
+          saveNewFile();
+          // 結果のメッセージを送信
+          event.sender.send('render_reply_message', 'saveas : ' + currentPath);
+          break;
+        default:
+          break;
+      }
+    }
   });
 }
 
@@ -70,7 +94,7 @@ function loadFile() {
     },
     // ダイアログが閉じられた後のコールバック関数
     (fileNames) => {
-      if (fileNames) {
+      if (fileNames.hasOwnProperty(0)) {
         readFile(fileNames[0]);
       }
     });
@@ -78,12 +102,13 @@ function loadFile() {
 
 // テキストを読み込み、テキストを入力エリアに設定
 function readFile(path) {
-  currentPath = path;
   fs.readFile(path, (error, text) => {
     if (error !== null) {
       alert('error : ' + error);
       return;
     }
+    // ファイルパスを保存
+    currentPath = path;
     // フッター部分に読み込み先のパスを設定
     footerArea.innerHTML = path;
     // テキスト入力エリアに設定
