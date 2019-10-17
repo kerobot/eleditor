@@ -1,7 +1,7 @@
 'use strict';
 
 // アプリケーションのモジュール読み込み
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
 const url = require('url');
 
@@ -30,18 +30,25 @@ function createWindow() {
     slashes: true
   }));
 
-  // デバッグ用：デベロッパーツールの起動
-  // mainWindow.webContents.openDevTools();
-
-  // デバッグ用：レンダラープロセスからメッセージを受信したときの処理
-  ipcMain.on('render_reply_message', (event, arg) => {
-    console.log(arg);
-  })
-
   // メインウィンドウが閉じられたときの処理
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
+
+  // DOMインスペクタ起動用のショートカットキー登録
+  if (process.env.NODE_ENV==='development') {
+    app.on('browser-window-focus', (event, focusedWindow) => {
+      globalShortcut.register(
+        process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+        () => focusedWindow.webContents.toggleDevTools()
+      )
+    })
+    app.on('browser-window-blur', (event, focusedWindow) => {
+      globalShortcut.unregister(
+        process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I'
+      )
+    })
+  }
 }
 
 // 初期化が完了した時の処理

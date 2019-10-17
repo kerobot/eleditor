@@ -5,11 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Debug Main Process",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/src/main.js",
-            "name": "Electron Main",
-            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron"
+            "env": {"NODE_ENV": "development"},
+            "cwd": "${workspaceRoot}",
+            "runtimeExecutable": "${workspaceFolder}/node_modules/.bin/electron",
+            "protocol": "inspector",
+            "args" : ["src"]
         }
     ]
 }

@@ -60,22 +60,14 @@ function onLoad() {
         case 'open':
           // ファイルを開く
           loadFile();
-          // 結果のメッセージを送信
-          event.sender.send('render_reply_message', 'open : ' + currentPath);
           break;
         case 'save':
           // ファイルを保存
           saveFile();
-          // 結果のメッセージを送信
-          event.sender.send('render_reply_message', 'save : ' + currentPath);
           break;
         case 'saveas':
           // 名前を付けてファイルを保存
           saveNewFile();
-          // 結果のメッセージを送信
-          event.sender.send('render_reply_message', 'saveas : ' + currentPath);
-          break;
-        default:
           break;
       }
     }
@@ -86,16 +78,16 @@ function onLoad() {
 function loadFile() {
   const win = BrowserWindow.getFocusedWindow();
   // ファイルを開くダイアログ
-  dialog.showOpenDialog(
-    win,
-    {
+  dialog.showOpenDialog( win, {
       properties: ['openFile'],
+      title: 'ファイルを開く',
+      defaultPath: currentPath,
+      multiSelections: false,
       filters: [{name: 'Documents', extensions: ['txt', 'text', 'html', 'js']}]
-    },
-    // ダイアログが閉じられた後のコールバック関数
-    (fileNames) => {
-      if (fileNames.hasOwnProperty(0)) {
-        readFile(fileNames[0]);
+    }).then(result => {
+      // ファイルを開く
+      if(!result.canceled && result.filePaths && result.filePaths.hasOwnProperty(0)) {
+        readFile(result.filePaths[0]);
       }
     });
 }
@@ -129,7 +121,7 @@ function saveFile() {
       title: 'ファイル保存',
       type: 'info',
       buttons: ['OK', 'Cancel'],
-      detail: 'ファイルを上書き保存します。よろしいですか？'
+      message: 'ファイルを上書き保存します。よろしいですか？'
     },
     // メッセージボックスが閉じられた後のコールバック関数
     (response) => {
@@ -142,6 +134,26 @@ function saveFile() {
   );
 }
 
+// 新規ファイルを保存
+function saveNewFile() {
+  const win = BrowserWindow.getFocusedWindow();
+  // ファイルを保存するダイアログ
+  dialog.showSaveDialog( win, {
+    properties: ['saveFile'],
+    title: '名前を付けて保存',
+    defaultPath: currentPath,
+    multiSelections: false,
+    filters: [{name: 'Documents', extensions: ['txt', 'text', 'html', 'js']}]
+  }).then(result => {
+    // ファイルを保存してファイルパスを記憶する
+    if(!result.canceled && result.filePath) {
+      currentPath = result.filePath;
+      const data = editor.getValue();
+      writeFile(currentPath, data);
+    }
+  });
+}
+
 // テキストをファイルとして保存
 function writeFile(path, data) {
   fs.writeFile(path, data, (error) => {
@@ -149,25 +161,4 @@ function writeFile(path, data) {
       alert('error : ' + error);
     }
   });
-}
-
-// 新規ファイルを保存
-function saveNewFile() {
-  const win = BrowserWindow.getFocusedWindow();
-  // ファイルを保存するダイアログ
-  dialog.showSaveDialog(
-    win,
-    {
-      properties: ['saveFile'],
-      filters: [{name: 'Documents', extensions: ['txt', 'text', 'html', 'js']}]
-    },
-    // ダイアログが閉じられた後のコールバック関数
-    (fileName) => {
-      if (fileName) {
-        const data = editor.getValue();
-        currentPath = fileName;
-        writeFile(currentPath, data);
-      }
-    }
-  );
 }
