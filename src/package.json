@@ -1,5 +1,5 @@
 {
-  "name": "electroneditor",
+  "name": "eleditor",
   "version": "0.0.1",
   "description": "Electron Editor.",
   "main": "main.js",

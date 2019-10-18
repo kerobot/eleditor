@@ -23,7 +23,7 @@ function createWindow() {
     }
   });
 
-  // メインウィンドウにHTMLを表示
+  // メインウィンドウに HTML を表示
   mainWindow.loadURL(url.format({
     pathname: path.join(app.getAppPath(), 'index.html'),
     protocol: 'file:',
@@ -35,7 +35,7 @@ function createWindow() {
     mainWindow = null;
   });
 
-  // DOMインスペクタ起動用のショートカットキー登録
+  // Chromeデベロッパーツール起動用のショートカットキーを登録
   if (process.env.NODE_ENV==='development') {
     app.on('browser-window-focus', (event, focusedWindow) => {
       globalShortcut.register(
@@ -80,7 +80,7 @@ function createMenuTemplate() {
       accelerator: 'CmdOrCtrl+O',
       click: function(item, focusedWindow) {
         if (focusedWindow) {
-          // レンダラープロセスへメッセージを送信してファイルを開く
+          // レンダラープロセスへIPCでメッセージを送信してファイルを開く
           focusedWindow.webContents.send('main_file_message', 'open');
         }
       }
@@ -89,7 +89,7 @@ function createMenuTemplate() {
       accelerator: 'CmdOrCtrl+S',
       click: function(item, focusedWindow) {
         if (focusedWindow) {
-          // レンダラープロセスへメッセージを送信してファイルを保存
+          // レンダラープロセスへIPCでメッセージを送信してファイルを保存
           focusedWindow.webContents.send('main_file_message', 'save');
         }
       }
@@ -98,7 +98,7 @@ function createMenuTemplate() {
       accelerator: 'Shift+CmdOrCtrl+S',
       click: function(item, focusedWindow) {
         if (focusedWindow) {
-          // レンダラープロセスへメッセージを送信してファイルを名前を付けて保存
+          // レンダラープロセスへIPCでメッセージを送信してファイルを名前を付けて保存
           focusedWindow.webContents.send('main_file_message', 'saveas');
         }
       }

@@ -52,7 +52,7 @@ function onLoad() {
     readFile(file.path);
   });
 
-  // 非同期でメインプロセスからのメッセージを受信
+  // IPCでメッセージを受信してファイルの制御を行う
   ipcRenderer.on('main_file_message', (event, arg) => {
     console.log(arg);
     if(arg) {
@@ -118,20 +118,17 @@ function saveFile() {
   const win = BrowserWindow.getFocusedWindow();
   // ファイルの上書き保存を確認
   dialog.showMessageBox(win, {
-      title: 'ファイル保存',
-      type: 'info',
-      buttons: ['OK', 'Cancel'],
-      message: 'ファイルを上書き保存します。よろしいですか？'
-    },
-    // メッセージボックスが閉じられた後のコールバック関数
-    (response) => {
-      // OKボタン(ボタン配列の0番目がOK)
-      if (response === 0) {
-        const data = editor.getValue();
-        writeFile(currentPath, data);
-      }
+    title: 'ファイル保存',
+    type: 'info',
+    buttons: ['OK', 'Cancel'],
+    message: 'ファイルを上書き保存します。よろしいですか？'
+  }).then(result => {
+    // OKボタンがクリックされた場合
+    if(result.response === 0) {
+      const data = editor.getValue();
+      writeFile(currentPath, data);
     }
-  );
+  });
 }
 
 // 新規ファイルを保存
