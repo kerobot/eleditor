@@ -3,8 +3,11 @@
     "start": "electron ./src"
   },
   "devDependencies": {
-    "electron": "^6.0.11",
-    "electron-packager": "^14.0.6"
+    "electron": ">=7.2.4",
+    "electron-packager": ">=14.2.1"
   },
-  "private": true
+  "private": true,
+  "dependencies": {
+    "lodash": "^4.17.15"
+  }
 }
