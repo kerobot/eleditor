@@ -3,7 +3,7 @@
     "start": "electron ./src"
   },
   "devDependencies": {
-    "electron": ">=7.2.4",
+    "electron": ">=9.3.0",
     "electron-packager": ">=14.2.1"
   },
   "private": true,
