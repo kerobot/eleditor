@@ -4,11 +4,7 @@
   },
   "devDependencies": {
     "electron": "^9.4.4",
-<<<<<<< HEAD
     "electron-packager": "^15.2.0"
-=======
-    "electron-packager": "^15.1.0"
->>>>>>> 89a576013a65f519e6ef205729904215742cae0f
   },
   "private": true,
   "dependencies": {
