@@ -1,9 +1,9 @@
 'use strict';
 
 // アプリケーションのモジュール読み込み
-const { app, BrowserWindow, Menu, ipcMain, globalShortcut } = require('electron');
+const { app, BrowserWindow, Menu, dialog, ipcMain, globalShortcut } = require('electron');
 const path = require('path');
-const url = require('url');
+const fs = require('fs');
 
 // メインウィンドウ
 let mainWindow;
@@ -19,16 +19,13 @@ function createWindow() {
     width: 1024,
     height: 768,
     webPreferences: {
-      nodeIntegration: true
+      contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js')
     }
   });
 
   // メインウィンドウに HTML を表示
-  mainWindow.loadURL(url.format({
-    pathname: path.join(app.getAppPath(), 'index.html'),
-    protocol: 'file:',
-    slashes: true
-  }));
+  mainWindow.loadFile(path.join(app.getAppPath(), 'index.html'));
 
   // メインウィンドウが閉じられたときの処理
   mainWindow.on('closed', () => {
@@ -157,3 +154,34 @@ function createMenuTemplate() {
   }]
   return template;
 }
+
+ipcMain.handle('open-file-dialog', async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ['openFile'],
+    title: 'ファイルを開く',
+    filters: [{ name: 'Documents', extensions: ['txt', 'text', 'html', 'js'] }]
+  });
+  if (result.canceled || result.filePaths.length === 0) {
+    return null;
+  }
+  const filePath = result.filePaths[0];
+  return { filePath, text: await fs.promises.readFile(filePath, 'utf8') };
+});
+
+ipcMain.handle('read-dropped-file', async (_event, filePath) => ({
+  filePath,
+  text: await fs.promises.readFile(filePath, 'utf8')
+}));
+
+ipcMain.handle('save-file-dialog', async (_event, defaultPath) => {
+  const result = await dialog.showSaveDialog({
+    title: '名前を付けて保存',
+    defaultPath,
+    filters: [{ name: 'Documents', extensions: ['txt', 'text', 'html', 'js'] }]
+  });
+  return result.canceled ? null : result.filePath;
+});
+
+ipcMain.handle('save-file', (_event, filePath, text) => fs.promises.writeFile(filePath, text, 'utf8'));
+
+ipcMain.handle('show-message-box', (_event, options) => dialog.showMessageBox(options));

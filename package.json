@@ -1,13 +1,11 @@
 {
   "scripts": {
-    "start": "electron ./src"
+    "start": "electron ./src",
+    "package": "electron-packager src eleditor --overwrite --platform=win32 --arch=x64 --out=dist"
   },
   "devDependencies": {
-    "electron": "^11.5.0",
-    "electron-packager": "^15.5.2"
+    "@electron/packager": "^20.3.0",
+    "electron": "^43.4.0"
   },
-  "private": true,
-  "dependencies": {
-    "npm": "^7.17.0"
-  }
+  "private": true
 }

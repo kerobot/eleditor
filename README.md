@@ -6,11 +6,12 @@ Electron を利用して作成した シンプルなテキストエディタで�
 
 ## 環境
 
-* Windows 10 x64 Pro 1903
-* PowerShell 6.1.1
-* Visual Studio Code 1.39.2
-* Git for Windows 2.23.0.windows.1
-* Node 12.8.0 ( nodist 0.8.8 )
+* Windows x64
+* Node.js 20 以上
+* npm 10 以上
+
+Electron 43 と `contextIsolation` に対応した構成です。Node.js のバージョンは
+`npm install` 実行環境に合わせてください。
 
 ## 構築
 
@@ -33,4 +34,12 @@ Electron を利用して作成した シンプルなテキストエディタで�
 
 ```powershell
 > npm start
+```
+
+## パッケージ化
+
+Windows x64 向けの配布物を `dist` に作成します。
+
+```powershell
+> npm run package
 ```

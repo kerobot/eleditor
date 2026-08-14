@@ -1,10 +1,6 @@
 'use strict';
 
 // アプリケーションのモジュール読み込み
-const {BrowserWindow, dialog} = require('electron').remote;
-const {ipcRenderer} = require('electron');
-const fs = require('fs');
-
 let inputArea = null;
 let inputTxt = null;
 let footerArea = null;
@@ -49,12 +45,14 @@ function onLoad() {
   inputArea.addEventListener('drop', (event) => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
-    readFile(file.path);
+    const filePath = window.electronAPI.getDroppedFilePath(file);
+    if (filePath) {
+      window.electronAPI.readDroppedFile(filePath).then(setFileContents).catch(showError);
+    }
   });
 
   // IPCでメッセージを受信してファイルの制御を行う
-  ipcRenderer.on('main_file_message', (event, arg) => {
-    console.log(arg);
+  window.electronAPI.onFileCommand((arg) => {
     if(arg) {
       switch(arg) {
         case 'open':
@@ -76,36 +74,22 @@ function onLoad() {
 
 // ファイルの読み込み
 function loadFile() {
-  const win = BrowserWindow.getFocusedWindow();
-  // ファイルを開くダイアログ
-  dialog.showOpenDialog( win, {
-      properties: ['openFile'],
-      title: 'ファイルを開く',
-      defaultPath: currentPath,
-      multiSelections: false,
-      filters: [{name: 'Documents', extensions: ['txt', 'text', 'html', 'js']}]
-    }).then(result => {
-      // ファイルを開く
-      if(!result.canceled && result.filePaths && result.filePaths.hasOwnProperty(0)) {
-        readFile(result.filePaths[0]);
-      }
-    });
+  window.electronAPI.openFile().then((file) => {
+    if (file) {
+      setFileContents(file);
+    }
+  }).catch(showError);
 }
 
 // テキストを読み込み、テキストを入力エリアに設定
-function readFile(path) {
-  fs.readFile(path, (error, text) => {
-    if (error !== null) {
-      alert('error : ' + error);
-      return;
-    }
-    // ファイルパスを保存
-    currentPath = path;
-    // フッター部分に読み込み先のパスを設定
-    footerArea.innerHTML = path;
-    // テキスト入力エリアに設定
-    editor.setValue(text.toString(), -1);
-  });
+function setFileContents(file) {
+  currentPath = file.filePath;
+  footerArea.textContent = file.filePath;
+  editor.setValue(file.text, -1);
+}
+
+function showError(error) {
+  alert('error : ' + error);
 }
 
 // ファイルの保存
@@ -115,9 +99,8 @@ function saveFile() {
     saveNewFile();
     return;
   }
-  const win = BrowserWindow.getFocusedWindow();
   // ファイルの上書き保存を確認
-  dialog.showMessageBox(win, {
+  window.electronAPI.showMessageBox({
     title: 'ファイル保存',
     type: 'info',
     buttons: ['OK', 'Cancel'],
@@ -133,18 +116,10 @@ function saveFile() {
 
 // 新規ファイルを保存
 function saveNewFile() {
-  const win = BrowserWindow.getFocusedWindow();
-  // ファイルを保存するダイアログ
-  dialog.showSaveDialog( win, {
-    properties: ['saveFile'],
-    title: '名前を付けて保存',
-    defaultPath: currentPath,
-    multiSelections: false,
-    filters: [{name: 'Documents', extensions: ['txt', 'text', 'html', 'js']}]
-  }).then(result => {
+  window.electronAPI.saveFileDialog(currentPath).then((filePath) => {
     // ファイルを保存してファイルパスを記憶する
-    if(!result.canceled && result.filePath) {
-      currentPath = result.filePath;
+    if (filePath) {
+      currentPath = filePath;
       const data = editor.getValue();
       writeFile(currentPath, data);
     }
@@ -153,9 +128,5 @@ function saveNewFile() {
 
 // テキストをファイルとして保存
 function writeFile(path, data) {
-  fs.writeFile(path, data, (error) => {
-    if (error !== null) {
-      alert('error : ' + error);
-    }
-  });
+  window.electronAPI.saveFile(path, data).catch(showError);
 }
