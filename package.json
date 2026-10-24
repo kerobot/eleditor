@@ -5,7 +5,7 @@
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
-    "electron": "^43.4.0"
+    "electron": "^43.8.1"
   },
   "private": true
 }
